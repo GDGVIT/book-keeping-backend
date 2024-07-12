@@ -10,7 +10,8 @@ router = DefaultRouter() if settings.DEBUG else SimpleRouter()
 router.register("users", UserViewSet)
 
 urlpatterns = [
-    path("users/", include("fj_finance_tracker.users.api.urls")),
+    path("users/", include("bookeeping.users.api.urls")),
+    #re_path("api/", include("bookeeping.core.urls")),
 ]
 app_name = "api"
 urlpatterns = router.urls
