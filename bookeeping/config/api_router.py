@@ -11,7 +11,7 @@ router.register("users", UserViewSet)
 
 urlpatterns = [
     path("users/", include("bookeeping.users.api.urls")),
-    #re_path("api/", include("bookeeping.core.urls")),
+    re_path("api/", include("bookeeping.core.api.urls")),
 ]
 app_name = "api"
 urlpatterns = router.urls
