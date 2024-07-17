@@ -6,7 +6,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from bookeeping.core.models import Business, Items, Inventory, Invoices, Parties, Transactions
+from bookeeping.core.models import Business, Items, Inventory, Invoices, Parties, Transactions, Budgets
 from bookeeping.core.api.serializers import BusinessSerializer, ItemsSerializer, InventorySerializer, InvoicesSerializer, PartiesSerializer, TransactionsSerializer
 
 class BusinessViewSet(ModelViewSet):
@@ -14,6 +14,7 @@ class BusinessViewSet(ModelViewSet):
     serializer_class = BusinessSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
 
 class ItemsViewSet(ModelViewSet):
     queryset = Items.objects.all()
@@ -45,3 +46,42 @@ class TransactionsViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    def perform_create(self, serializer):
+        business = Business.objects.get(user=self.request.user)
+        amount = serializer.validated_data["amount"]
+        item = serializer.validated_data["item"]
+        budget = Budgets.objects.get(business=business)
+        budget.filter(item=item)
+        if budget.remaining < amount:
+            send_mail(
+                "Budget Alert",
+                f"Budget for {item} is running low",
+                ")",
+                [business.user.email],
+                fail_silently=False,
+            )
+        
+        serializer.save(business=business)
+
+class BudgetView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        business = Business.objects.get(user=request.user)
+        transactions = Transactions.objects.filter(business=business)
+        total_income = 0
+        total_expense = 0
+        for transaction in transactions:
+            if transaction.transaction_type == "Income":
+                total_income += transaction.amount
+            else:
+                total_expense += transaction.amount
+        return Response(
+            {
+                "total_income": total_income,
+                "total_expense": total_expense,
+                "total_balance": total_income - total_expense,
+            },
+            status=status.HTTP_200_OK,
+        )

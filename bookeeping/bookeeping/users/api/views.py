@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 
@@ -34,7 +35,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 User = get_user_model()
 
 class RegistrationView(APIView):
-    permission_classes = []
+    permission_classes = [AllowAny]
     authentication_classes = []
 
     @staticmethod
@@ -76,26 +77,7 @@ class LoginRegistrationView(APIView):
                 status=HTTPStatus.BAD_REQUEST,
             )
         try:
-            user = get_object_or_404(User, email=email)
-
-            if not user.check_password(password):
-                return Response({"detail": "Incorrect password."}, status=HTTPStatus.BAD_REQUEST)
-
-            # Generate JWT refresh token for the user
-            refresh_token = RefreshToken.for_user(user)
-
-            serializer = UserLoginSerializer(user)
-            serializer.access_token = refresh_token.access_token
-            serializer.refresh_token = str(refresh_token)
-
-            return Response(
-                {
-                    "data": serializer.data,
-                    "access_token": str(refresh_token.access_token),
-                    "refresh_token": str(refresh_token),
-                },
-                status=HTTPStatus.OK,
-            )
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             user = User.objects.create_user(
             name=name,
@@ -115,6 +97,26 @@ class LoginRegistrationView(APIView):
                 },
                 status=HTTPStatus.OK,
             )
+
+        if not user.check_password(password):
+            return Response({"detail": "Incorrect password."}, status=HTTPStatus.BAD_REQUEST)
+
+            # Generate JWT refresh token for the user
+        refresh_token = RefreshToken.for_user(user)
+
+        serializer = UserLoginSerializer(user)
+        serializer.access_token = refresh_token.access_token
+        serializer.refresh_token = str(refresh_token)
+
+        return Response(
+            {
+                "data": serializer.data,
+                "access_token": str(refresh_token.access_token),
+                "refresh_token": str(refresh_token),
+            },
+            status=HTTPStatus.OK,
+        )
+        
 
 
 

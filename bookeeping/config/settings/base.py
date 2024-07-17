@@ -2,7 +2,7 @@
 """Base settings to build other settings files upon."""
 
 from pathlib import Path
-
+from datetime import timedelta
 import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
@@ -59,6 +59,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # APPS
 # ------------------------------------------------------------------------------
+LOCAL_APPS = [
+    "bookeeping.users",
+    "bookeeping.core.apps.CoreConfig",
+    # Your stuff: custom apps go here
+]
+
 DJANGO_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -84,13 +90,8 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
 ]
 
-LOCAL_APPS = [
-    "bookeeping.users",
-    "bookeeping.core",
-    # Your stuff: custom apps go here
-]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = LOCAL_APPS +DJANGO_APPS + THIRD_PARTY_APPS 
 
 # MIGRATIONS
 # ------------------------------------------------------------------------------
@@ -326,6 +327,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -345,3 +347,9 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Bearer",),
+     "ACCESS_TOKEN_LIFETIME": timedelta(seconds= 1000),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+}

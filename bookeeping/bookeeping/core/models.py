@@ -87,5 +87,16 @@ class Budgets(models.Model):
     item= models.ForeignKey(Items, on_delete=models.CASCADE)
     business = models.ForeignKey(Business, on_delete=models.CASCADE)
 
+    @property
+    def remaining(self):
+        transactions = Transactions.objects.filter(item=self.item)
+        total = 0
+        for transaction in transactions:
+            if transaction.type == "Purchase":
+                total += transaction.amount
+            else:
+                total -= transaction.amount
+        return self.amount - total
+
     def __str__(self):
         return self.type
