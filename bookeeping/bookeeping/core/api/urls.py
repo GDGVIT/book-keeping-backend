@@ -30,3 +30,8 @@ urlpatterns += invoices_router.urls
 parties_router = DefaultRouter()
 parties_router.register(r"parties", PartiesViewSet, basename="parties")
 urlpatterns += parties_router.urls
+
+#Transactions urls
+transactions_router = DefaultRouter()
+transactions_router.register(r"transactions", TransactionsViewSet, basename="transactions")
+urlpatterns += transactions_router.urls

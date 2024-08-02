@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
-from bookeeping.core.models import Business, Items, Inventory, Invoices, Parties, Transactions
+from bookeeping.core.models import Business, Items, Inventory, Invoices, Parties, Transactions, Budgets
 
 class BusinessSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Business
         fields = '__all__'
@@ -32,4 +33,8 @@ class TransactionsSerializer(serializers.ModelSerializer):
         model = Transactions
         fields = '__all__'
 
+class BudgetsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Budgets
+        fields = '__all__'
 

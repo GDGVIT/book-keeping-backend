@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=bookeeping
+POSTGRES_USER=orwfsvnWxFDoDnwvloHSeawExIAIDeci
+POSTGRES_PASSWORD=NcRhIr1Rw9KR9ksMjaosKtRRHbIpEdWev0k7HH2Zf1hbvvWn5JEAjMP5QoffYkuU
